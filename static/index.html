@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Watch catfrag</title>
+  <script src="https://cdn.tailwindcss.com/3.3.2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/artplayer/dist/artplayer.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+  <!-- Search bar -->
+  <div class="p-6 flex justify-center">
+    <input id="searchInput" type="text" placeholder="Search..."
+      class="w-1/2 p-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+    <button id="searchBtn"
+      class="px-4 bg-blue-500 text-white rounded-r-lg hover:bg-blue-600">Search</button>
+  </div>
+
+  <!-- Results grid -->
+  <div id="results" class="grid grid-cols-2 md:grid-cols-6 gap-10 p-10"></div>
+
+  <!-- Episodes Modal -->
+  <div id="episodeModal"
+       class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center"
+       onclick="closeEpisodeModal(event)">
+    <div class="bg-white rounded-lg shadow-lg w-3/4 max-w-2xl p-4 flex flex-col max-h-[90vh]"
+         onclick="event.stopPropagation()">
+
+      <!-- Title -->
+      <h2 id="modalTitle" class="text-xl font-bold mb-2">Episodes</h2>
+
+      <!-- Episodes list -->
+      <div id="episodes"
+           class="grid grid-cols-2 md:grid-cols-5 gap-3 overflow-y-auto flex-1 p-5 rounded">
+      </div>
+    </div>
+  </div>
+
+  <!-- Player Modal -->
+  <div id="playerModal"
+       class="fixed inset-0 bg-black bg-opacity-80 hidden items-center justify-center"
+       onclick="closePlayerModal(event)">
+    <div class="bg-black w-4/5 h-4/5 rounded-lg shadow-lg flex items-center justify-center"
+         onclick="event.stopPropagation()">
+      <div id="player" class="w-full h-full"></div>
+    </div>
+  </div>
+
+
+  <script>
+    const searchBtn = document.getElementById('searchBtn');
+    const searchInput = document.getElementById('searchInput');
+    const resultsDiv = document.getElementById('results');
+    const modal = document.getElementById('episodeModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const episodesDiv = document.getElementById('episodes');
+    const playerDiv = document.getElementById('player');
+    let art = null;
+
+    searchInput.addEventListener('keyup', function(event) {
+      if (event.key === "Enter") {
+        searchBtn.click();
+      }
+    });
+
+    // Search click handler
+    searchBtn.onclick = () => {
+      resultsDiv.innerHTML = "";
+      const keyword = searchInput.value.trim();
+      if (!keyword) 
+        return;
+
+      const evtSource = new EventSource(`/search?keyword=${encodeURIComponent(keyword)}`);
+
+      evtSource.onmessage = (e) => {
+        const data = JSON.parse(e.data);
+        data.result.forEach(item => {
+          console.log(item)
+
+          const card = document.createElement('div');
+          card.className = "bg-white rounded-lg shadow hover:shadow-lg cursor-pointer";
+          card.innerHTML = `
+            <img src="${item.vod_pic}" class="h-full w-full object-cover rounded-t-lg">
+            <div class="p-2 font-semibold">${item.vod_name} ${item.vods.length}</div>
+          `;
+          card.onclick = () => showEpisodes(item);
+          resultsDiv.appendChild(card);
+        });
+      };
+
+      evtSource.onerror = () => {
+        evtSource.close();
+      };
+    };
+
+    function showEpisodes(item) {
+      modalTitle.textContent = item.vod_name;
+      episodesDiv.innerHTML = "";
+      episodeModal.classList.remove("hidden");
+      episodeModal.classList.add("flex");
+
+      item.vods.forEach(ep => {
+        const btn = document.createElement('button');
+        btn.className = "p-2 text-sm border rounded bg-gray-100 hover:bg-blue-500 hover:text-white transition active";
+        btn.textContent = ep.ep_name;
+        btn.onclick = () => {
+          btn.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          btn.classList.add("active");
+          openPlayer(ep.ep_url);
+        }
+        episodesDiv.appendChild(btn);
+      });
+    }
+
+    function openPlayer(url) {
+      playerModal.classList.remove("hidden");
+      playerModal.classList.add("flex");
+
+      if (art) 
+        art.destroy();
+      art = new Artplayer({
+        container: playerDiv,
+        theme: '#0d6efd',
+        url: url,
+        setting: true,
+        autoplay: true,
+        autoSize: false,
+        flip: true,
+        shortcut: true,
+        playbackRate: true,
+        aspectRatio: true,
+        fullscreen: true,
+        fullscreenWeb: true,
+        type: url.endsWith(".m3u8") ? "m3u8" : "normal",
+        customType: {
+          m3u8: function (video, url) {
+            if (Hls.isSupported()) {
+              const hls = new Hls();
+              hls.loadSource(url);
+              hls.attachMedia(video);
+              art.hls = hls;
+              art.on('destroy', () => hls.destroy());
+            } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+              video.src = url; // Safari
+            } else {
+                art.notice.show = 'Unsupported playback format: m3u8';
+            }
+          }
+        }
+      });
+    }
+    
+    function closeEpisodeModal(event) {
+      if (event.target.id === "episodeModal") {
+        episodeModal.classList.add("hidden");
+      }
+    }
+
+    function closePlayerModal(event) {
+      if (event.target.id === "playerModal") {
+        playerModal.classList.add("hidden");
+        if (art) 
+          art.destroy();
+      }
+    }
+// a.scrollIntoView({ behavior: 'smooth', block: 'center' })
+
+  </script>
+</body>
+</html>

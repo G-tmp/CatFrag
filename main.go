@@ -98,14 +98,7 @@ func searchHandler(keyword string, w http.ResponseWriter){
 func main(){
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodGet {
-			w.Header().Set("Content-Type", "application/json")
-			io.WriteString(w, `{"code":"200"}`)
-		} else {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		}
-	})
+	http.Handle("/", http.FileServer(http.Dir("static")))
 
 	http.HandleFunc("/config", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodGet {
@@ -139,6 +132,7 @@ func main(){
 		}
 	})
 
+	fmt.Println("http://127.0.0.1:22222")
 	err := http.ListenAndServe(":22222", nil)
 	if err != nil {
 		log.Println(err)
