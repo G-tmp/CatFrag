@@ -29,7 +29,7 @@
          onclick="event.stopPropagation()">
 
       <!-- Title -->
-      <h2 id="modalTitle" class="text-xl font-bold mb-2">Episodes</h2>
+      <h2 id="modalTitle" class="text-l font-bold mb-2 text-center">Episodes</h2>
 
       <!-- Episodes list -->
       <div id="episodes"
@@ -101,15 +101,26 @@
       episodeModal.classList.remove("hidden");
       episodeModal.classList.add("flex");
 
-      item.vods.forEach(ep => {
-        const btn = document.createElement('button');
-        btn.className = "p-2 text-sm border rounded bg-gray-100 hover:bg-blue-500 hover:text-white transition active";
+      item.vods.forEach((ep, idx) => {
+        const btn = document.createElement('a');
+        btn.className = "block p-2 text-sm border rounded bg-gray-100 hover:bg-blue-500 hover:text-white transition text-center ";
+        btn.href = ep.ep_url;
         btn.textContent = ep.ep_name;
-        btn.onclick = () => {
+        btn.onclick = (e) => {
+          e.preventDefault();
+          // active most recently clicked ep
+          episodesDiv.querySelectorAll("a").forEach(el => {
+            el.classList.remove("bg-blue-500", "text-white");
+            el.classList.add("bg-gray-100");
+          });
           btn.scrollIntoView({ behavior: 'smooth', block: 'center' })
-          btn.classList.add("active");
+          btn.classList.add("bg-blue-500", "text-white");
+          btn.classList.remove("bg-gray-100");
+
           openPlayer(ep.ep_url);
+          console.log("now play", ep);
         }
+
         episodesDiv.appendChild(btn);
       });
     }
@@ -124,6 +135,7 @@
         container: playerDiv,
         theme: '#0d6efd',
         url: url,
+        title: "title",
         setting: true,
         autoplay: true,
         autoSize: false,
@@ -150,6 +162,7 @@
           }
         }
       });
+
     }
     
     function closeEpisodeModal(event) {
@@ -163,6 +176,7 @@
         playerModal.classList.add("hidden");
         if (art) 
           art.destroy();
+          art = null;
       }
     }
 // a.scrollIntoView({ behavior: 'smooth', block: 'center' })

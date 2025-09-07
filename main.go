@@ -8,6 +8,8 @@ import(
 	"fmt"
 	"log"
 	"time"
+	"flag"
+	"strconv"
 )
 
 
@@ -96,7 +98,6 @@ func searchHandler(keyword string, w http.ResponseWriter){
 
 
 func main(){
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	http.Handle("/", http.FileServer(http.Dir("static")))
 
@@ -132,10 +133,19 @@ func main(){
 		}
 	})
 
-	fmt.Println("http://127.0.0.1:22222")
-	err := http.ListenAndServe(":22222", nil)
+	fmt.Println("http://127.0.0.1:" + strconv.Itoa(port))
+	err := http.ListenAndServe(":" + strconv.Itoa(port), nil)
 	if err != nil {
 		log.Println(err)
 		return 
 	}
+}
+
+
+var port int
+
+func init(){
+	flag.IntVar(&port, "p", 22222, "listening port, between 0 and 65535")
+	flag.Parse()
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 }
