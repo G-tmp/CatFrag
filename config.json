@@ -1,6 +1,7 @@
 {
-   "site_name":"cat frag",
+   "site_name":"catfrag",
    "timeout":5,
+   "background_image_pc": "https://img.qlqqs.com/random",
    "base_urls":[
       {
          "name":"电影天堂资源",

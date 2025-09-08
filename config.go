@@ -11,6 +11,7 @@ type SiteConfig struct {
 	SiteName              string        `json:"site_name"`
 	Timeout               int           `json:"timeout"`
 	BaseUrls              []BaseUrlItem `json:"base_urls"`
+	BgImgPc				string			`json:"background_image_pc"`
 }
 
 type BaseUrlItem struct {

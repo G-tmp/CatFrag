@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/artplayer/dist/artplayer.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-cover bg-center bg-no-repeat bg-fixed min-h-screen">
 
   <!-- Search bar -->
   <div class="p-6 flex justify-center">
@@ -59,6 +59,14 @@
     const playerDiv = document.getElementById('player');
     let art = null;
 
+    window.addEventListener("DOMContentLoaded", async () => {
+      const res = await fetch("/config");
+      const config = await res.json();
+      console.log("Loaded config:", config);
+      document.title = config.site_name;
+      document.body.style.backgroundImage = `url('${config.background_image_pc}')`;
+    });
+
     searchInput.addEventListener('keyup', function(event) {
       if (event.key === "Enter") {
         searchBtn.click();
@@ -80,10 +88,10 @@
           console.log(item)
 
           const card = document.createElement('div');
-          card.className = "bg-white rounded-lg shadow hover:shadow-lg cursor-pointer";
+          card.className = "rounded-lg shadow hover:shadow-lg cursor-pointer";
           card.innerHTML = `
             <img src="${item.vod_pic}" class="h-full w-full object-cover rounded-t-lg">
-            <div class="p-2 font-semibold">${item.vod_name} ${item.vods.length}</div>
+            <div class="bg-white font-semibold text-center">${item.vod_name} ${item.vods.length}</div>
           `;
           card.onclick = () => showEpisodes(item);
           resultsDiv.appendChild(card);
@@ -100,7 +108,8 @@
       episodesDiv.innerHTML = "";
       episodeModal.classList.remove("hidden");
       episodeModal.classList.add("flex");
-
+      const focusedElement = document.activeElement;
+      console.log(focusedElement)
       item.vods.forEach((ep, idx) => {
         const btn = document.createElement('a');
         btn.className = "block p-2 text-sm border rounded bg-gray-100 hover:bg-blue-500 hover:text-white transition text-center ";
@@ -135,12 +144,10 @@
         container: playerDiv,
         theme: '#0d6efd',
         url: url,
-        title: "title",
         setting: true,
         autoplay: true,
         autoSize: false,
         flip: true,
-        shortcut: true,
         playbackRate: true,
         aspectRatio: true,
         fullscreen: true,
@@ -163,8 +170,9 @@
         }
       });
 
+      art.isFocus = true;
     }
-    
+
     function closeEpisodeModal(event) {
       if (event.target.id === "episodeModal") {
         episodeModal.classList.add("hidden");
@@ -179,7 +187,6 @@
           art = null;
       }
     }
-// a.scrollIntoView({ behavior: 'smooth', block: 'center' })
 
   </script>
 </body>
