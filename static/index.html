@@ -19,7 +19,7 @@
   </div>
 
   <!-- Results grid -->
-  <div id="results" class="grid grid-cols-2 md:grid-cols-6 gap-10 p-10"></div>
+  <div id="results" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-10 p-10"></div>
 
   <!-- Episodes Modal -->
   <div id="episodeModal"
@@ -42,7 +42,7 @@
   <div id="playerModal"
        class="fixed inset-0 bg-black bg-opacity-80 hidden items-center justify-center"
        onclick="closePlayerModal(event)">
-    <div class="bg-black w-4/5 h-4/5 rounded-lg shadow-lg flex items-center justify-center"
+    <div class="bg-black w-full h-3/5 md:w-4/5 md:h-4/5 rounded-lg shadow-lg flex items-center justify-center"
          onclick="event.stopPropagation()">
       <div id="player" class="w-full h-full"></div>
     </div>
@@ -88,11 +88,20 @@
           console.log(item)
 
           const card = document.createElement('div');
-          card.className = "rounded-lg shadow hover:shadow-lg cursor-pointer";
+          card.className = "bg-white rounded-lg shadow-sm hover:shadow-lg transition overflow-hidden cursor-pointer";
           card.innerHTML = `
-            <img src="${item.vod_pic}" class="h-full w-full object-cover rounded-t-lg">
-            <div class="bg-white font-semibold text-center">${item.vod_name} ${item.vods.length}</div>
+            <div class="relative">
+              <img src="${item.vod_pic}" class="w-full h-40  md:h-60 lg:h-80 object-cover">
+              <div class="absolute top-2 right-2 bg-black/70 text-white text-s px-2 py-0.5 rounded">
+                ${item.vods.length} ${item.vods.length > 1 ? "eps" : "ep"}
+              </div>
+            </div>
+            <div class="p-1 text-center">
+              <div class="text-gray-900 font-semibold text-sm lines-2">${item.vod_name}</div>
+              <div class="text-xs text-gray-500 mt-1 truncate">${data.name}</div>
+            </div>
           `;
+
           card.onclick = () => showEpisodes(item);
           resultsDiv.appendChild(card);
         });
@@ -108,8 +117,7 @@
       episodesDiv.innerHTML = "";
       episodeModal.classList.remove("hidden");
       episodeModal.classList.add("flex");
-      const focusedElement = document.activeElement;
-      console.log(focusedElement)
+
       item.vods.forEach((ep, idx) => {
         const btn = document.createElement('a');
         btn.className = "block p-2 text-sm border rounded bg-gray-100 hover:bg-blue-500 hover:text-white transition text-center ";
@@ -134,16 +142,25 @@
       });
     }
 
+    function closeEpisodeModal(event) {
+      if (event.target.id === "episodeModal") {
+        episodeModal.classList.add("hidden");
+      }
+    }
+
     function openPlayer(url) {
       playerModal.classList.remove("hidden");
       playerModal.classList.add("flex");
 
-      if (art) 
+      if (art){
         art.destroy();
+        art = null;
+      }
       art = new Artplayer({
         container: playerDiv,
         theme: '#0d6efd',
         url: url,
+        volume: 1,
         setting: true,
         autoplay: true,
         autoSize: false,
@@ -171,11 +188,11 @@
       });
 
       art.isFocus = true;
-    }
-
-    function closeEpisodeModal(event) {
-      if (event.target.id === "episodeModal") {
-        episodeModal.classList.add("hidden");
+      document.onkeydown = ev => {
+        if (ev.key == "f") {
+          if (art)
+            art.fullscreen = !art.fullscreen;
+        }
       }
     }
 
