@@ -110,8 +110,6 @@ func main(){
 				return 
 			}
 			io.WriteString(w, string(rawConfig))
-		} else if r.Method == http.MethodPost {
-
 		} else {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}

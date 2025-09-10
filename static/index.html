@@ -36,7 +36,7 @@
 
       <!-- Episodes list -->
       <div id="episodes"
-           class="grid grid-cols-2 md:grid-cols-5 gap-3 overflow-y-auto flex-1 p-5 rounded">
+           class="grid grid-cols-2 md:grid-cols-5 gap-3 overflow-y-auto flex-1 p-1 md:p-5 rounded">
       </div>
     </div>
   </div>
@@ -97,8 +97,10 @@
 
       evtSource.onmessage = (e) => {
         const data = JSON.parse(e.data);
-        allResults.push(data);
+        if (data.result.length < 1) 
+          return
 
+        allResults.push(data);
         renderTab(data.name);
         data.result.forEach(item => {
           renderCard(item, data.name);
