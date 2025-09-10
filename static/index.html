@@ -18,6 +18,9 @@
       class="px-4 bg-blue-500 text-white rounded-r-lg hover:bg-blue-600">Search</button>
   </div>
 
+  <!-- Tabs grid -->
+  <div id="tabs" class="flex flex-wrap gap-2 pt-6 pl-10 or-10"></div>
+
   <!-- Results grid -->
   <div id="results" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-10 p-10"></div>
 
@@ -52,12 +55,15 @@
   <script>
     const searchBtn = document.getElementById('searchBtn');
     const searchInput = document.getElementById('searchInput');
+    const tabs = document.getElementById('tabs');
     const resultsDiv = document.getElementById('results');
     const modal = document.getElementById('episodeModal');
     const modalTitle = document.getElementById('modalTitle');
     const episodesDiv = document.getElementById('episodes');
     const playerDiv = document.getElementById('player');
     let art = null;
+    let allResults = [];
+    let activeTab = null;
 
     window.addEventListener("DOMContentLoaded", async () => {
       const res = await fetch("/config");
@@ -81,48 +87,98 @@
         return;
 
       const evtSource = new EventSource(`/search?keyword=${encodeURIComponent(keyword)}`);
+      tabs.innerHTML = "";
+      allResults = [];
+      allResults.push({name: "All"});
+      renderTab("All");
+      activeTab = "All";
+      tabs.querySelector("button").classList.remove("bg-gray-100");
+      tabs.querySelector("button").classList.add("bg-blue-200");
 
       evtSource.onmessage = (e) => {
         const data = JSON.parse(e.data);
+        allResults.push(data);
+
+        renderTab(data.name);
         data.result.forEach(item => {
-          console.log(item)
-
-          const card = document.createElement('div');
-          card.className = "bg-white rounded-lg shadow-sm hover:shadow-lg transition overflow-hidden cursor-pointer";
-          card.innerHTML = `
-            <div class="relative">
-              <img src="${item.vod_pic}" class="w-full h-40  md:h-60 lg:h-80 object-cover">
-              <div class="absolute top-2 right-2 bg-black/70 text-white text-s px-2 py-0.5 rounded">
-                ${item.vods.length} ${item.vods.length > 1 ? "eps" : "ep"}
-              </div>
-            </div>
-            <div class="p-1 text-center">
-              <div class="text-gray-900 font-semibold text-sm lines-2">${item.vod_name}</div>
-              <div class="text-xs text-gray-500 mt-1 truncate">${data.name}</div>
-            </div>
-          `;
-
-          card.onclick = () => showEpisodes(item);
-          resultsDiv.appendChild(card);
+          renderCard(item, data.name);
         });
       };
+      console.log(allResults);
 
       evtSource.onerror = () => {
         evtSource.close();
       };
     };
 
+    function renderTab(name){
+      const btn = document.createElement("button");
+      btn.innerText = name;
+      btn.className = `
+        px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition hover:bg-blue-200 bg-gray-100
+      `;
+      tabs.appendChild(btn);
+      btn.onclick = () => {
+        if (name === activeTab){
+          return
+        }
+
+        activeTab = name;
+        resultsDiv.innerHTML = "";
+
+        if (name === "All") {
+          allResults.forEach(re => {
+            re.result?.forEach(i => {
+              renderCard(i, re.name);
+            });
+          });
+        } else {
+          allResults.find(i => i.name === name).result.forEach(i => {
+            renderCard(i, name);
+          })
+        }
+
+        tabs.querySelectorAll("button").forEach(el => {
+          el.classList.remove("bg-blue-200");
+          el.classList.add("bg-gray-100");
+        });
+        btn.classList.remove("bg-gray-100");
+        btn.classList.add("bg-blue-200");
+      }
+    }
+
+    function renderCard(item, name){
+      const card = document.createElement('div');
+      card.className = "bg-white rounded-lg shadow-sm hover:shadow-lg transition overflow-hidden cursor-pointer";
+      card.innerHTML = `
+        <div class="relative">
+          <img src="${item.vod_pic}" class="w-full h-40  md:h-60 lg:h-80 object-cover">
+          <div class="absolute top-2 right-2 bg-black/70 text-white text-s px-2 py-0.5 rounded">
+            ${item.vods.length} ${item.vods.length > 1 ? "eps" : "ep"}
+          </div>
+        </div>
+        <div class="p-1 text-center">
+          <div class="text-gray-900 font-semibold text-sm lines-2">${item.vod_name}</div>
+          <div class="text-xs text-gray-500 mt-1 truncate">${name}</div>
+        </div>
+      `;
+
+      card.onclick = () => showEpisodes(item);
+      resultsDiv.appendChild(card);
+    }
+
     function showEpisodes(item) {
-      modalTitle.textContent = item.vod_name;
+      modalTitle.innerText = item.vod_name;
       episodesDiv.innerHTML = "";
       episodeModal.classList.remove("hidden");
       episodeModal.classList.add("flex");
+      document.body.classList.add('overflow-hidden');
 
-      item.vods.forEach((ep, idx) => {
+      item.vods.forEach((ep) => {
         const btn = document.createElement('a');
         btn.className = "block p-2 text-sm border rounded bg-gray-100 hover:bg-blue-500 hover:text-white transition text-center ";
         btn.href = ep.ep_url;
-        btn.textContent = ep.ep_name;
+        btn.innerText = ep.ep_name;
         btn.onclick = (e) => {
           e.preventDefault();
           // active most recently clicked ep
@@ -130,9 +186,9 @@
             el.classList.remove("bg-blue-500", "text-white");
             el.classList.add("bg-gray-100");
           });
-          btn.scrollIntoView({ behavior: 'smooth', block: 'center' })
-          btn.classList.add("bg-blue-500", "text-white");
           btn.classList.remove("bg-gray-100");
+          btn.classList.add("bg-blue-500", "text-white");
+          btn.scrollIntoView({ behavior: 'smooth', block: 'center' })
 
           openPlayer(ep.ep_url);
           console.log("now play", ep);
@@ -145,6 +201,7 @@
     function closeEpisodeModal(event) {
       if (event.target.id === "episodeModal") {
         episodeModal.classList.add("hidden");
+        document.body.classList.remove('overflow-hidden');
       }
     }
 
