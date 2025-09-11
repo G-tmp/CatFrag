@@ -2,6 +2,7 @@ package main
 
 import(
 	"net/http"
+	"net/url"
 	"sync"
 	"io"
 	"encoding/json"
@@ -42,7 +43,7 @@ func searchHandler(keyword string, w http.ResponseWriter){
 
 		go func(item BaseUrlItem){
 			defer wg.Done()
-			url := fmt.Sprintf("%s?ac=detail&wd=%s", item.BaseUrl, keyword)
+			url := fmt.Sprintf("%s?ac=detail&wd=%s", item.BaseUrl, url.QueryEscape(keyword))
 			req, err := http.NewRequest("GET", url, nil)
 			if err != nil {
 				log.Println(item.Name, err)
@@ -56,6 +57,11 @@ func searchHandler(keyword string, w http.ResponseWriter){
 				return
 			}
 			defer resp.Body.Close()
+
+			if resp.StatusCode != 200 {
+				log.Println(item.Name, resp.Status)
+				return
+			}
 
 			body, err := io.ReadAll(resp.Body)
 			if err != nil {

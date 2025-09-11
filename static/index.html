@@ -86,7 +86,7 @@
       if (!keyword) 
         return;
 
-      const evtSource = new EventSource(`/search?keyword=${encodeURIComponent(keyword)}`);
+      const evtSource = new EventSource(`/search?keyword=${keyword}`);
       tabs.innerHTML = "";
       allResults = [];
       allResults.push({name: "All"});
