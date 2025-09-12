@@ -20,13 +20,13 @@ type BaseUrlItem struct {
 }
 
 
-func ReadRawConfig() ([]byte, error){
+func readRawConfig() ([]byte, error){
 	return os.ReadFile("config.json")
 }
 
 
 func ReadConfig() (SiteConfig, error) {
-	config, err := ReadRawConfig()
+	config, err := readRawConfig()
 	if err != nil {
 		return SiteConfig{}, err
 	}

@@ -13,26 +13,17 @@ import(
 	"strconv"
 )
 
+var (
+	port int
+	client *http.Client
+	config SiteConfig
+)
+
 
 func searchHandler(keyword string, w http.ResponseWriter){
-	config, err := ReadConfig()
-	if err != nil {
-		log.Println(err)
-		return 
-	}
-	client := &http.Client{Timeout: time.Duration(config.Timeout) * time.Second}
 	resultCh := make(chan string)
 	wg := sync.WaitGroup{}
-	flusher, ok := w.(http.Flusher)
-	if !ok {
-		http.Error(w, "Streaming not supported", http.StatusInternalServerError)
-		return
-	}
 
-	w.Header().Set("Content-Type", "text/event-stream; charset=utf-8")
-	w.Header().Set("Cache-Control", "no-cache")
-	w.Header().Set("Connection", "keep-alive")
-	
 	go func() {
 		wg.Wait()
 		close(resultCh)
@@ -69,14 +60,14 @@ func searchHandler(keyword string, w http.ResponseWriter){
 				return
 			}
 
-			cms := CMSResponse{}
+			var cms CMSResponse
 			err = json.Unmarshal(body, &cms)
 			if err != nil {
 				log.Println(item.Name, err)
 				return 
 			}
 
-			if cms.Code != 1 {
+			if cms.Code != 1 || len(cms.List) == 0{
 				return
 			}
 
@@ -95,27 +86,47 @@ func searchHandler(keyword string, w http.ResponseWriter){
 	}
 
 	for res := range resultCh {
+		w.Header().Set("Content-Type", "text/event-stream; charset=utf-8")
+		w.Header().Set("Cache-Control", "no-cache")
+		w.Header().Set("Connection", "keep-alive")
 		io.WriteString(w, "data: ")
 		io.WriteString(w, res)
 		io.WriteString(w, "\n\n")
-        flusher.Flush()
 	}
 }
 
 
 func main(){
+	cc, err := ReadConfig()
+	if err != nil {
+		log.Println(err)
+		return 
+	}
+	config = cc
+
+	client = &http.Client{Timeout: time.Duration(config.Timeout) * time.Second,}
 
 	http.Handle("/", http.FileServer(http.Dir("static")))
 
 	http.HandleFunc("/config", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodGet {
 			w.Header().Set("Content-Type", "application/json")
-			rawConfig, err := ReadRawConfig()
+			data, err := json.Marshal(config)
 			if err != nil {
 				log.Println(err)
 				return 
 			}
-			io.WriteString(w, string(rawConfig))
+			io.WriteString(w, string(data))
+		} else if r.Method == http.MethodPost {
+			w.Header().Set("Content-Type", "application/json")
+			var newCfg SiteConfig
+			if err := json.NewDecoder(r.Body).Decode(&newCfg); err != nil {
+				w.WriteHeader(http.StatusBadRequest)
+				io.WriteString(w, "bad json")
+				return
+			}
+			config = newCfg
+			io.WriteString(w, "200 OK")
 		} else {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
@@ -138,15 +149,13 @@ func main(){
 	})
 
 	fmt.Println("http://127.0.0.1:" + strconv.Itoa(port))
-	err := http.ListenAndServe(":" + strconv.Itoa(port), nil)
+	err = http.ListenAndServe(":" + strconv.Itoa(port), nil)
 	if err != nil {
 		log.Println(err)
 		return 
 	}
 }
 
-
-var port int
 
 func init(){
 	flag.IntVar(&port, "p", 22222, "listening port, between 0 and 65535")
