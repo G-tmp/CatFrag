@@ -19,10 +19,10 @@
   </div>
 
   <!-- Tabs grid -->
-  <div id="tabs" class="flex flex-wrap gap-2 pt-6 pl-10 or-10"></div>
+  <div id="tabs" class="flex flex-wrap gap-2 pt-6 md:pl-10 pl-4 or-10"></div>
 
   <!-- Results grid -->
-  <div id="results" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-10 p-10"></div>
+  <div id="results" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 p-4 md:gap-10 md:p-10"></div>
 
   <!-- Episodes Modal -->
   <div id="episodeModal"
@@ -81,14 +81,14 @@
 
     // Search click handler
     searchBtn.onclick = () => {
+      tabs.innerHTML = "";
+      allResults = [];
       resultsDiv.innerHTML = "";
       const keyword = searchInput.value.trim();
       if (!keyword) 
         return;
 
       const evtSource = new EventSource(`/search?keyword=${keyword}`);
-      tabs.innerHTML = "";
-      allResults = [];
       allResults.push({name: "All"});
       renderTab("All");
       activeTab = "All";

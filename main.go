@@ -50,13 +50,13 @@ func searchHandler(keyword string, w http.ResponseWriter){
 			defer resp.Body.Close()
 
 			if resp.StatusCode != 200 {
-				log.Println(item.Name, resp.Status)
+				log.Println(item.Name, resp.Status, url)
 				return
 			}
 
 			body, err := io.ReadAll(resp.Body)
 			if err != nil {
-				log.Println(item.Name, err)		
+				log.Println(item.Name, err)
 				return
 			}
 
