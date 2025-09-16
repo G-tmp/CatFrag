@@ -154,7 +154,7 @@
       card.className = "bg-white rounded-lg shadow-sm hover:shadow-lg transition overflow-hidden cursor-pointer";
       card.innerHTML = `
         <div class="relative">
-          <img src="${item.vod_pic}" class="w-full h-40  md:h-60 lg:h-80 object-cover">
+          <img src="${item.vod_pic}" class="w-full h-40 md:h-60 lg:h-80 object-cover" loading="lazy">
           <div class="absolute top-2 right-2 bg-black/70 text-white text-s px-2 py-0.5 rounded">
             ${item.vods.length} ${item.vods.length > 1 ? "eps" : "ep"}
           </div>
