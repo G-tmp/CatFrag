@@ -149,15 +149,22 @@
       }
     }
 
-    function renderCard(item, name){
+    async function renderCard(item, name){
+      const resolution = await extractM3U8Resolutions(item.vods[0].ep_url);
       const card = document.createElement('div');
       card.className = "bg-white rounded-lg shadow-sm hover:shadow-lg transition overflow-hidden cursor-pointer";
       card.innerHTML = `
         <div class="relative">
           <img src="${item.vod_pic}" class="w-full h-40 md:h-60 lg:h-80 object-cover" loading="lazy">
-          <div class="absolute top-2 right-2 bg-black/70 text-white text-s px-2 py-0.5 rounded">
+          <div class="absolute top-2 right-2 bg-black/70 text-white text-sm md:text-base px-1 py-0.5 rounded">
             ${item.vods.length} ${item.vods.length > 1 ? "eps" : "ep"}
           </div>
+          ${resolution 
+          ? `<div class="absolute bottom-2 left-2 bg-black/70 text-white text-sm md:text-base px-1 py-0.5 rounded">
+              ${resolution}
+            </div>`
+          : ``
+          }
         </div>
         <div class="p-1 text-center">
           <div class="text-gray-900 font-semibold text-sm lines-2">${item.vod_name}</div>
@@ -167,6 +174,29 @@
 
       card.onclick = () => showEpisodes(item);
       resultsDiv.appendChild(card);
+    }
+
+    async function extractM3U8Resolutions(url) {
+      try {
+        const response = await fetch(url);
+        const data = await response.text();
+
+        const lines = data.split('\n');
+        const resolutions = [];
+
+        for (let line of lines) {
+          if (line.startsWith('#EXT-X-STREAM-INF')) {
+            const match = line.match(/RESOLUTION=(\d+x\d+)/);
+            if (match) {
+              resolutions.push(match[1]);
+            }
+          }
+        }
+
+        return resolutions.length > 0 ? resolutions : null;
+      } catch (error) {
+        return null;
+      }
     }
 
     function showEpisodes(item) {
