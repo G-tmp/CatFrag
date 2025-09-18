@@ -24,11 +24,6 @@ func searchHandler(keyword string, w http.ResponseWriter){
 	resultCh := make(chan string)
 	wg := sync.WaitGroup{}
 
-	go func() {
-		wg.Wait()
-		close(resultCh)
-	}()
-
 	for _, item := range config.BaseUrls {
 		wg.Add(1)
 
@@ -84,6 +79,11 @@ func searchHandler(keyword string, w http.ResponseWriter){
 			// resultCh <- item.Name + string(body)
 		}(item)
 	}
+
+	go func() {
+		wg.Wait()
+		close(resultCh)
+	}()
 
 	for res := range resultCh {
 		w.Header().Set("Content-Type", "text/event-stream; charset=utf-8")
