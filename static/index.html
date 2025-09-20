@@ -64,6 +64,7 @@
     let art = null;
     let allResults = [];
     let activeTab = null;
+    
 
     window.addEventListener("DOMContentLoaded", async () => {
       const res = await fetch("/config");
@@ -73,84 +74,87 @@
       document.body.style.backgroundImage = `url('${config.background_image_pc}')`;
     });
 
+
     searchInput.addEventListener('keyup', function(event) {
       if (event.key === "Enter") {
         searchBtn.click();
       }
     });
 
-    // Search click handler
+
     searchBtn.onclick = () => {
       tabs.innerHTML = "";
-      allResults = [];
       resultsDiv.innerHTML = "";
+      allResults = [];
       const keyword = searchInput.value.trim();
       if (!keyword) 
         return;
 
       const evtSource = new EventSource(`/search?keyword=${keyword}`);
-      allResults.push({name: "All"});
-      renderTab("All");
-      activeTab = "All";
-      tabs.querySelector("button").classList.remove("bg-gray-100");
-      tabs.querySelector("button").classList.add("bg-blue-200");
 
       evtSource.onmessage = (e) => {
         const data = JSON.parse(e.data);
-        if (data.result.length < 1) 
+        if (data.result.length == 0) 
           return
 
         allResults.push(data);
         renderTab(data.name);
-        data.result.forEach(item => {
+        data.result.forEach(async item => {
+          item.resolution = await extractM3U8Resolutions(item.vods[0].ep_url);
           renderCard(item, data.name);
         });
       };
-      console.log(allResults);
 
       evtSource.onerror = () => {
         evtSource.close();
+        console.log(allResults);
       };
     };
+
 
     function renderTab(name){
       const btn = document.createElement("button");
       btn.innerText = name;
       btn.className = `
-        px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition hover:bg-blue-200 bg-gray-100
+        px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition md:hover:bg-blue-200 bg-gray-100
       `;
       tabs.appendChild(btn);
       btn.onclick = () => {
         if (name === activeTab){
-          return
+          activeTab = null;
+        } else {
+          activeTab = name;
         }
-
-        activeTab = name;
         resultsDiv.innerHTML = "";
 
-        if (name === "All") {
+        if (activeTab) {
+          allResults.find(i => i.name === name).result.forEach(i => {
+            renderCard(i, name);
+          })
+          tabs.querySelectorAll("button").forEach(el => {
+            el.classList.remove("bg-blue-200");
+            el.classList.add("bg-gray-100");
+          });
+          btn.classList.remove("bg-gray-100");
+          btn.classList.add("bg-blue-200");
+        } else {
+          // render all 
           allResults.forEach(re => {
             re.result?.forEach(i => {
               renderCard(i, re.name);
             });
           });
-        } else {
-          allResults.find(i => i.name === name).result.forEach(i => {
-            renderCard(i, name);
-          })
+          tabs.querySelectorAll("button").forEach(el => {
+            el.classList.remove("bg-blue-200");
+            el.classList.add("bg-gray-100");
+          });
         }
 
-        tabs.querySelectorAll("button").forEach(el => {
-          el.classList.remove("bg-blue-200");
-          el.classList.add("bg-gray-100");
-        });
-        btn.classList.remove("bg-gray-100");
-        btn.classList.add("bg-blue-200");
       }
     }
 
+
     async function renderCard(item, name){
-      const resolution = await extractM3U8Resolutions(item.vods[0].ep_url);
       const card = document.createElement('div');
       card.className = "bg-white rounded-lg shadow-sm hover:shadow-lg transition overflow-hidden cursor-pointer";
       card.innerHTML = `
@@ -159,9 +163,9 @@
           <div class="absolute top-2 right-2 bg-black/70 text-white text-sm md:text-base px-1 py-0.5 rounded">
             ${item.vods.length} ${item.vods.length > 1 ? "eps" : "ep"}
           </div>
-          ${resolution 
+          ${item.resolution
           ? `<div class="absolute bottom-2 left-2 bg-black/70 text-white text-sm md:text-base px-1 py-0.5 rounded">
-              ${resolution}
+              ${item.resolution}
             </div>`
           : ``
           }
@@ -175,6 +179,7 @@
       card.onclick = () => showEpisodes(item);
       resultsDiv.appendChild(card);
     }
+
 
     async function extractM3U8Resolutions(url) {
       try {
@@ -198,6 +203,7 @@
         return null;
       }
     }
+
 
     function showEpisodes(item) {
       modalTitle.innerText = item.vod_name;
@@ -230,12 +236,14 @@
       });
     }
 
+
     function closeEpisodeModal(event) {
       if (event.target.id === "episodeModal") {
         episodeModal.classList.add("hidden");
         document.body.classList.remove('overflow-hidden');
       }
     }
+
 
     function openPlayer(url) {
       playerModal.classList.remove("hidden");
@@ -284,6 +292,7 @@
         }
       }
     }
+
 
     function closePlayerModal(event) {
       if (event.target.id === "playerModal") {
