@@ -43,7 +43,20 @@ func (c *CMSItem)UnmarshalJSON(data []byte) error{
 
 	var eps []Episode
 	if aux.VodsURL != "" {
-		playSource1 := strings.Split(aux.VodsURL, "$$$")[0]
+		playSource := strings.Split(aux.VodsURL, "$$$")
+		var playSource1 string
+		if len(playSource) == 1 {
+			playSource1 = playSource[0]
+		} else {
+			// find m3u8 source 
+			for i, s := range playSource {
+				if strings.Contains(s, ".m3u8") {
+					playSource1 = playSource[i]
+					break
+				}
+			}
+		}
+
 		parts := strings.Split(playSource1, "#")
 		for _, p := range parts {
 			kv := strings.SplitN(p, "$", 2)
