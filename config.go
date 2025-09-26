@@ -17,6 +17,7 @@ type SiteConfig struct {
 type BaseUrlItem struct {
 	Name 				string			`json:"name"`
 	BaseUrl				string			`json:"base_url"`
+	FilterTid			[]int			`json:"filter_type_id"`
 }
 
 

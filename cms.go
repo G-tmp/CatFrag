@@ -13,6 +13,9 @@ type Episode struct {
 }
 
 type CMSItem struct {
+	TypeId		int 		`json:"type_id"`
+	TypeName 	string		`json:"type_name"`
+	VodId		int 		`json:"vod_id"`
 	VodName		string		`json:"vod_name"`
 	VodPic		string		`json:"vod_pic"`
 	Vods		[]Episode 	`json:"vods"`

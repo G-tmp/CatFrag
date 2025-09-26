@@ -5,67 +5,83 @@
    "base_urls":[
       {
          "name":"豆瓣资源",
-         "base_url":"https://dbzy.tv/api.php/provide/vod/from/dbm3u8/at/josn"
+         "base_url":"https://dbzy.tv/api.php/provide/vod/from/dbm3u8/at/josn",
+         "filter_type_id":[35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52]
       },
       {
          "name":"茅台资源",
-         "base_url":"https://caiji.maotaizy.cc/api.php/provide/vod/from/mtm3u8/at/josn"
+         "base_url":"https://caiji.maotaizy.cc/api.php/provide/vod/from/mtm3u8/at/josn",
+         "filter_type_id":[35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52]
       },
       {
          "name":"极速资源",
-         "base_url":"https://jszyapi.com/api.php/provide/vod/from/jsm3u8/at/json"
+         "base_url":"https://jszyapi.com/api.php/provide/vod/from/jsm3u8/at/json",
+         "filter_type_id":[29,38]         
       },
       {
          "name":"电影天堂资源",
-         "base_url":"https://caiji.dyttzyapi.com/api.php/provide/vod/from/dyttm3u8/at/json"
+         "base_url":"https://caiji.dyttzyapi.com/api.php/provide/vod/from/dyttm3u8/at/json",
+         "filter_type_id":[36]
       },
       {
          "name":"如意资源",
-         "base_url":"https://cj.rycjapi.com/api.php/provide/vod/from/rym3u8/at/json"
+         "base_url":"https://cj.rycjapi.com/api.php/provide/vod/from/rym3u8/at/json",
+         "filter_type_id":[35,36,37,38,39,40,45,46]
       },
       {
          "name":"暴风资源",
-         "base_url":"https://bfzyapi.com/api.php/provide/vod"
+         "base_url":"https://bfzyapi.com/api.php/provide/vod",
+         "filter_type_id":[51,52,53,54,55,56,57,58,65,66,67,68,69,70,71,72,73]
       },
       {
          "name":"天涯资源",
-         "base_url":"https://tyyszy.com/api.php/provide/vod"
+         "base_url":"https://tyyszy.com/api.php/provide/vod",
+         "filter_type_id":[]
       },
       {
          "name":"非凡影视",
-         "base_url":"http://ffzy5.tv/api.php/provide/vod/from/ffm3u8/at/json"
+         "base_url":"http://ffzy5.tv/api.php/provide/vod/from/ffm3u8/at/json",
+         "filter_type_id":[36]
       },
       {
          "name":"360资源",
-         "base_url":"https://360zy.com/api.php/provide/vod"
+         "base_url":"https://360zy.com/api.php/provide/vod",
+         "filter_type_id":[17,18,28,41,42,43,44,46,47,48,49,50,51,52,53]
       },
       {
          "name":"卧龙资源",
-         "base_url":"https://wolongzyw.com/api.php/provide/vod"
+         "base_url":"https://wolongzyw.com/api.php/provide/vod",
+         "filter_type_id":[38,54]
       },
       {
          "name":"魔爪资源",
-         "base_url":"https://mozhuazy.com/api.php/provide/vod"
+         "base_url":"https://mozhuazy.com/api.php/provide/vod",
+         "filter_type_id":[47]
       },
       {
          "name":"魔都资源",
-         "base_url":"https://www.mdzyapi.com/api.php/provide/vod"
+         "base_url":"https://www.mdzyapi.com/api.php/provide/vod",
+         "filter_type_id":[38]
       },
       {
          "name":"最大资源",
-         "base_url":"https://api.zuidapi.com/api.php/provide/vod"
+         "base_url":"https://api.zuidapi.com/api.php/provide/vod",
+         "filter_type_id":[47,48,49,50,51,52,53,54,55,57,60,61,63,64,65,66,67,68,69]
       },
       {
          "name":"无尽资源",
-         "base_url":"https://api.wujinapi.me/api.php/provide/vod"
+         "base_url":"https://api.wujinapi.me/api.php/provide/vod",
+         "filter_type_id":[38,39,40,41,44,45,46,47,48,51,52,53,54,55,56,57,58,59,62]
       },
       {
          "name":"iKun资源",
-         "base_url":"https://ikunzyapi.com/api.php/provide/vod/from/ikm3u8/at/json"
+         "base_url":"https://ikunzyapi.com/api.php/provide/vod/from/ikm3u8/at/json",
+         "filter_type_id":[40,41,43,44,45,46,47,48,49,50,51,52,53,54,55]
       },
       {
          "name":"百度云源站",
-         "base_url":"https://api.apibdzy.com/api.php/provide/vod"
+         "base_url":"https://api.apibdzy.com/api.php/provide/vod",
+         "filter_type_id":[47,48,49,50,51,52,53,54,56,57,60,61,63,64,65,66,67,68,69]
       }
    ]
 }

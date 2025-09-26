@@ -11,6 +11,7 @@ import(
 	"time"
 	"flag"
 	"strconv"
+	"slices"
 )
 
 var (
@@ -66,6 +67,15 @@ func searchHandler(keyword string, w http.ResponseWriter){
 				return
 			}
 
+			i := 0
+			for _, c := range cms.List {
+				if !slices.Contains(item.FilterTid, c.TypeId) {
+					cms.List[i] = c
+					i++
+				}
+			}
+			cms.List = cms.List[:i]
+
 			re := ResultData{
 				item.Name, cms.List,
 			}
@@ -76,7 +86,6 @@ func searchHandler(keyword string, w http.ResponseWriter){
 			}
 
 			resultCh <- string(data)
-			// resultCh <- item.Name + string(body)
 		}(item)
 	}
 
@@ -97,6 +106,10 @@ func searchHandler(keyword string, w http.ResponseWriter){
 
 
 func main(){
+	flag.IntVar(&port, "p", 22222, "listening port, between 0 and 65535")
+	flag.Parse()
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
 	cc, err := ReadConfig()
 	if err != nil {
 		log.Println(err)
@@ -105,6 +118,7 @@ func main(){
 	config = cc
 
 	client = &http.Client{Timeout: time.Duration(config.Timeout) * time.Second,}
+
 
 	http.Handle("/", http.FileServer(http.Dir("static")))
 
@@ -154,11 +168,4 @@ func main(){
 		log.Println(err)
 		return 
 	}
-}
-
-
-func init(){
-	flag.IntVar(&port, "p", 22222, "listening port, between 0 and 65535")
-	flag.Parse()
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
 }
