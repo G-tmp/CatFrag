@@ -1,7 +1,8 @@
 {
    "site_name":"catfrag",
    "timeout":5,
-   "background_image_pc": "https://img.qlqqs.com/random",
+   "background_image_pc": "https://img.qlqqs.com/randompc",
+   "background_image_phone": "https://img.qlqqs.com/randompe",
    "base_urls":[
       {
          "name":"豆瓣资源",
@@ -77,6 +78,11 @@
          "name":"iKun资源",
          "base_url":"https://ikunzyapi.com/api.php/provide/vod/from/ikm3u8/at/json",
          "filter_type_id":[40,41,43,44,45,46,47,48,49,50,51,52,53,54,55]
+      },
+      {
+         "name":"量子资源",
+         "base_url":"https://cj.lziapi.com/api.php/provide/vod/from/lzm3u8/at/json",
+         "filter_type_id":[35,36,37,38,39,40,41,42,43,44,45,46]
       },
       {
          "name":"百度云源站",

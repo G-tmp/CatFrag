@@ -71,7 +71,11 @@
       const config = await res.json();
       console.log("Loaded config:", config);
       document.title = config.site_name;
-      document.body.style.backgroundImage = `url('${config.background_image_pc}')`;
+      if (window.innerWidth < 640) {
+        document.body.style.backgroundImage = `url('${config.background_image_phone}')`;
+      } else {
+        document.body.style.backgroundImage = `url('${config.background_image_pc}')`;
+      }
     });
 
 
@@ -99,8 +103,7 @@
 
         allResults.push(data);
         renderTab(data.name);
-        data.result.forEach(async item => {
-          item.resolution = await extractM3U8Resolutions(item.vods[0].ep_url);
+        data.result.forEach(item => {
           renderCard(item, data.name);
         });
       };
