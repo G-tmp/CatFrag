@@ -184,30 +184,6 @@
     }
 
 
-    async function extractM3U8Resolutions(url) {
-      try {
-        const response = await fetch(url);
-        const data = await response.text();
-
-        const lines = data.split('\n');
-        const resolutions = [];
-
-        for (let line of lines) {
-          if (line.startsWith('#EXT-X-STREAM-INF')) {
-            const match = line.match(/RESOLUTION=(\d+x\d+)/);
-            if (match) {
-              resolutions.push(match[1]);
-            }
-          }
-        }
-
-        return resolutions.length > 0 ? resolutions : null;
-      } catch (error) {
-        return null;
-      }
-    }
-
-
     function showEpisodes(item) {
       modalTitle.innerText = item.vod_name;
       episodesDiv.innerHTML = "";
@@ -252,6 +228,7 @@
       playerModal.classList.remove("hidden");
       playerModal.classList.add("flex");
 
+      Artplayer.NOTICE_TIME = 4000;
       if (art){
         art.destroy();
         art = null;
@@ -288,12 +265,24 @@
       });
 
       art.isFocus = true;
-      document.onkeydown = ev => {
-        if (ev.key == "f") {
-          if (art)
+
+      art.on('ready', () => {
+        const videoElement = art.video;
+        const videoWidth = videoElement.videoWidth;
+        const videoHeight = videoElement.videoHeight;
+        art.notice.show = `${videoWidth} x ${videoHeight}`;
+
+        document.onkeydown = ev => {
+          if (ev.key == "f") {
+            event.preventDefault();
             art.fullscreen = !art.fullscreen;
+          } else if (ev.key == "i"){
+            event.preventDefault();
+            art.template.$player.classList.toggle("art-info-show");
+          } 
         }
-      }
+
+      });
     }
 
 
