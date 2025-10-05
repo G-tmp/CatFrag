@@ -11,7 +11,7 @@
 <body class="bg-cover bg-center bg-no-repeat bg-fixed min-h-screen">
 
   <!-- Search bar -->
-  <div class="p-6 flex justify-center">
+  <div class="p-6 md:p-10 flex justify-center">
     <input id="searchInput" type="text" placeholder="Search..."
       class="w-1/2 p-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
     <button id="searchBtn"
@@ -19,7 +19,7 @@
   </div>
 
   <!-- Tabs grid -->
-  <div id="tabs" class="flex flex-wrap gap-2 pt-6 md:pl-10 pl-4 or-10"></div>
+  <div id="tabs" class="flex flex-wrap gap-2 md:pl-10 pl-4 py-4 or-10"></div>
 
   <!-- Results grid -->
   <div id="results" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 p-4 md:gap-10 md:p-10"></div>
@@ -32,7 +32,7 @@
          onclick="event.stopPropagation()">
 
       <!-- Title -->
-      <h2 id="modalTitle" class="text-l font-bold mb-2 text-center">Episodes</h2>
+      <div id="modalTitle" class="text-center mb-2 space-y-1">Episodes</div>
 
       <!-- Episodes list -->
       <div id="episodes"
@@ -157,7 +157,7 @@
     }
 
 
-    async function renderCard(item, name){
+    function renderCard(item, name){
       const card = document.createElement('div');
       card.className = "bg-white rounded-lg shadow-sm hover:shadow-lg transition overflow-hidden cursor-pointer";
       card.innerHTML = `
@@ -185,7 +185,10 @@
 
 
     function showEpisodes(item) {
-      modalTitle.innerText = item.vod_name;
+        modalTitle.innerHTML = `
+        <div class="text-l font-bold">${item.vod_name}</div>
+        <div class="text-sm text-gray-500">updated: ${item.vod_time}</div>
+      `;
       episodesDiv.innerHTML = "";
       episodeModal.classList.remove("hidden");
       episodeModal.classList.add("flex");

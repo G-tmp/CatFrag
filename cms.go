@@ -17,6 +17,7 @@ type CMSItem struct {
 	TypeName 	string		`json:"type_name"`
 	VodId		int 		`json:"vod_id"`
 	VodName		string		`json:"vod_name"`
+	VodTime		string		`json:"vod_time"`
 	VodPic		string		`json:"vod_pic"`
 	Vods		[]Episode 	`json:"vods"`
 }
